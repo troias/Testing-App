@@ -1,9 +1,20 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import App from "./App";
 
-test('renders learn react link', () => {
+
+
+//test if hello world in page
+
+// Button has bg-blue500 intial color 
+test("Button has bg-blue500 initial color", () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const buttonElement = screen.getByRole("button");
+  expect(buttonElement).toHaveClass("bg-blue-500");
 });
+
+
+// Button has correct intial text
+
+//Button turns Red when clicked
+
