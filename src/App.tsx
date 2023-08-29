@@ -18,21 +18,29 @@ function App() {
         <div className="flex justify-center">
           <input
             type="checkbox"
+            id="disable-button-checkbox"
             className="form-checkbox h-5 w-5 text-blue-600"
             checked={checked}
             onChange={() => setChecked(!checked)}
           />
-          <label className="ml-2">Toggle Me</label>
+          <label className="ml-2" htmlFor="disable-button-checkbox">
+            disable button
+          </label>
         </div>
+
         <button
           onClick={() => setOpen(!open)}
           className={classNames(
-            open
-              ? "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              : "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            checked
+              ? "bg-gray-400 cursor-not-allowed"
+              : open
+              ? "bg-blue-500 hover:bg-blue-700"
+              : "bg-red-500 hover:bg-red-700",
+            "text-white font-bold py-2 px-4 rounded-full"
           )}
+          disabled={checked}
         >
-          Test Button
+          {open ? "Open" : "Close"}
         </button>
       </header>
     </div>

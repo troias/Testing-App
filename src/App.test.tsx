@@ -16,7 +16,7 @@ test("Button has bg-blue500 initial color", () => {
 
 test("Button click toggles state, is blue intially then red", () => {
   const { getByText } = render(<App />);
-  const button = getByText("Test Button");
+  const button = getByText("Open");
 
   // Initially, the state should be true
   expect(button).toHaveClass("bg-blue-500");
@@ -28,14 +28,14 @@ test("Button click toggles state, is blue intially then red", () => {
   expect(button).toHaveClass("bg-red-500");
 
   // Test if the button text changes
-  expect(button).toHaveTextContent("Test Button");
+  expect(button).toHaveTextContent("Close");
 });
 
 //expect color button to be enabled
 
 test("Button is enabled", () => {
   const { getByText } = render(<App />);
-  const button = getByText("Test Button");
+  const button = getByText("Open");
   expect(button).toBeEnabled();
 });
 
@@ -65,4 +65,33 @@ test("Checkbox is checked should be false", () => {
   expect(checkbox).toBeChecked();
   fireEvent.click(checkbox);
   expect(checkbox).not.toBeChecked();
+});
+
+// expect when disable is checked button to be bg-gray-400 and when button is !open be red and open be blue and when button is open be text open and when not open be close
+
+test("Button is disabled when checkbox is checked", () => {
+  const { getByText, getByRole } = render(<App />);
+  const button = getByText("Open");
+  const checkbox = getByRole("checkbox");
+
+  // Initially, the button should be not enabled
+  expect(button).toBeEnabled();
+
+  // Simulate a checkbox click
+  fireEvent.click(checkbox);
+
+  // After the click, the button should be disabled
+  expect(button).toBeDisabled();
+
+  // Simulate another checkbox click
+  fireEvent.click(checkbox);
+
+  // After the click, the button should be enabled again
+  expect(button).toBeEnabled();
+
+  // button should be bg-gray-400 when checkbox is checked
+
+  fireEvent.click(checkbox);
+
+  expect(button).toHaveClass("bg-gray-400");
 });
