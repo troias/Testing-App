@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import App from "./App";
 import { log } from "console";
+import { replaceCamelWithSpaces } from "./App";
 
 //test if hello world in page
 
@@ -9,7 +10,7 @@ import { log } from "console";
 test("Button has bg-blue500 initial color", () => {
   render(<App />);
   const buttonElement = screen.getByRole("button");
-  expect(buttonElement).toHaveClass("bg-blue-500");
+  expect(buttonElement).toHaveClass("bg-violet-500");
 });
 
 // get state that if button is clicked and state is false then bg-red-500
@@ -19,13 +20,13 @@ test("Button click toggles state, is blue intially then red", () => {
   const button = getByText("Open");
 
   // Initially, the state should be true
-  expect(button).toHaveClass("bg-blue-500");
+  expect(button).toHaveClass("bg-violet-500");
 
   // Simulate a button click
   fireEvent.click(button);
 
   // After the click, the state should change, so the class should change
-  expect(button).toHaveClass("bg-red-500");
+  expect(button).toHaveClass("bg-sky-500");
 
   // Test if the button text changes
   expect(button).toHaveTextContent("Close");
@@ -94,4 +95,20 @@ test("Button is disabled when checkbox is checked", () => {
   fireEvent.click(checkbox);
 
   expect(button).toHaveClass("bg-gray-400");
+});
+
+//descrive
+
+describe("spaces before camel-case capital letters", () => {
+  test("Works for no inner capital letters", () => {
+    expect(replaceCamelWithSpaces("Red")).toBe("Red");
+  });
+
+  test("Works for one inner capital letter", () => {
+    expect(replaceCamelWithSpaces("MidnightBlue")).toBe("Midnight Blue");
+  });
+
+  test("Works for multiple inner capital letters", () => {
+    expect(replaceCamelWithSpaces("MediumVioletRed")).toBe("Medium Violet Red");
+  });
 });

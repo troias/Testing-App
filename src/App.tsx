@@ -2,6 +2,10 @@ import { useState } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 
+export function replaceCamelWithSpaces(colorName: string) {
+  return colorName.replace(/\B([A-Z])\B/g, " $1");
+}
+
 function App() {
   const [open, setOpen] = useState(true);
   const [checked, setChecked] = useState(false);
@@ -34,8 +38,8 @@ function App() {
             checked
               ? "bg-gray-400 cursor-not-allowed"
               : open
-              ? "bg-blue-500 hover:bg-blue-700"
-              : "bg-red-500 hover:bg-red-700",
+              ? "bg-violet-500 hover:bg-blue-700"
+              : "bg-sky-500 hover:bg-red-700",
             "text-white font-bold py-2 px-4 rounded-full"
           )}
           disabled={checked}
