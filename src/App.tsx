@@ -1,7 +1,6 @@
 import { useState } from "react";
 import logo from "./logo.svg";
 import "./App.css";
-
 export function replaceCamelWithSpaces(colorName: string) {
   return colorName.replace(/\B([A-Z])\B/g, " $1");
 }
