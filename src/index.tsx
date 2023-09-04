@@ -7,11 +7,12 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./components/layout/layout";
 import MobileNavigation from "./components/navigation/mobileNavigation";
 import OrderSummary from "./pages/summary/OrderSummary";
+import SummaryForm from "./pages/summary/SummaryForm";
 
 const routerInner = createBrowserRouter([
   { path: "/", element: <App /> },
   { path: "/about", element: <div>about</div> },
-  { path: "/contact", element: <div>contact</div> },
+  { path: "/summary-form", element: <SummaryForm /> },
   {
     path: "/order-summary",
     element: <OrderSummary />,

@@ -19,6 +19,7 @@ const dummyToppings = [
 
 export default function OrderSummary({}: Props) {
   const [isChecked, setIsChecked] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
 
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
@@ -26,9 +27,7 @@ export default function OrderSummary({}: Props) {
 
   const handleButtonClick = () => {
     if (isChecked) {
-      alert("Button clicked!");
-    } else {
-      alert("Please check the checkbox first.");
+      setShowAlert(true);
     }
   };
   return (
@@ -78,6 +77,7 @@ export default function OrderSummary({}: Props) {
           >
             Click me
           </button>
+          {showAlert && <div role="alert">Button clicked!</div>}
         </div>
       </div>
     </div>
