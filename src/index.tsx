@@ -12,7 +12,10 @@ const routerInner = createBrowserRouter([
   { path: "/", element: <App /> },
   { path: "/about", element: <div>about</div> },
   { path: "/contact", element: <div>contact</div> },
-  { path: "/order-summary", element: <OrderSummary /> },
+  {
+    path: "/order-summary",
+    element: <OrderSummary />,
+  },
   { path: "/:path*", element: <div>404</div> },
 ]);
 
@@ -22,9 +25,8 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <MobileNavigation />
-    <RouterProvider router={routerInner} />
     <Layout>
-      <App />
+      <RouterProvider router={routerInner} />
     </Layout>
   </React.StrictMode>
 );
