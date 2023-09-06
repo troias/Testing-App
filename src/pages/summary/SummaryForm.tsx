@@ -4,6 +4,12 @@ import * as Yup from "yup";
 
 type Props = {};
 
+const toppings = [
+  { name: "Sprinkles", value: "Sprinkles" },
+  { name: "Cherries", value: "Cherries" },
+  { name: "Chocolate Sauce", value: "Chocolate Sauce" },
+];
+
 export default function IceCreamOrderForm({}: Props) {
   const [isChecked, setIsChecked] = useState(false);
 
@@ -11,26 +17,39 @@ export default function IceCreamOrderForm({}: Props) {
     setIsChecked(!isChecked);
   };
 
-  const validationSchema = Yup.object({
-    name: Yup.string().required("Name is required"),
-    iceCreamFlavor: Yup.string().required("Ice Cream Flavor is required"),
-    toppings: Yup.array()
-      .min(1, "Select at least one topping")
-      .required("Toppings are required"),
-  });
+  const flavours = [
+    { name: "Vanilla", value: "Vanilla" },
+    { name: "Chocolate", value: "Chocolate" },
+    { name: "Strawberry", value: "Strawberry" },
+  ];
 
   return (
     <div className="w-full  mt-10 p-4 bg-white rounded-lg shadow-md">
       <Formik
-        initialValues={{ name: "", iceCreamFlavor: "", toppings: [] }}
-        validationSchema={validationSchema}
-        onSubmit={(values, { setSubmitting }) => {
+        initialValues={{ name: "", iceCreamFlavor: [], toppings: [] }}
+        validationSchema={Yup.object({
+          name: Yup.string()
+            .max(15, "Must be 15 characters or less")
+            .required("Required"),
+          iceCreamFlavors: Yup.array()
+            .min(1, "Pick at least 1 flavor")
+            .required("Required"),
+          toppings: Yup.array()
+            .min(1, "Pick at least 1 topping")
+            .required("Required"),
+          confirmationCheckbox: Yup.boolean().oneOf(
+            [true],
+            "You must accept the terms and conditions"
+          ),
+        })}
+        onSubmit={(values, { setSubmitting, resetForm }) => {
+          console.log(values);
           setTimeout(() => {
             alert(JSON.stringify(values, null, 2));
+            resetForm();
             setSubmitting(false);
-          }, 400);
-
-          console.log(values);
+            setIsChecked(false);
+          }, 3000);
         }}
       >
         {({ isSubmitting }) => (
@@ -39,6 +58,7 @@ export default function IceCreamOrderForm({}: Props) {
               <label className="block text-gray-700" htmlFor="name">
                 Name
               </label>
+
               <Field
                 type="text"
                 name="name"
@@ -53,75 +73,62 @@ export default function IceCreamOrderForm({}: Props) {
               />
             </div>
             <div>
-              <label className="block text-gray-700" htmlFor="iceCreamFlavor">
+              <label className="block text-gray-700 py-2 font-bold">
                 Ice Cream Flavor
               </label>
-              <Field
-                type="text"
-                name="iceCreamFlavor"
-                id="iceCreamFlavor"
-                className="block w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300"
-                placeholder="Ice Cream Flavor"
-              />
+              <div role="group">
+                {flavours.map((flavor) => (
+                  <label key={flavor.value} className="mr-4">
+                    <Field
+                      type="checkbox"
+                      name="iceCreamFlavors"
+                      value={flavor.value}
+                      className="mr-2"
+                    />
+                    {flavor.name}
+                  </label>
+                ))}
+              </div>
               <ErrorMessage
-                name="iceCreamFlavor"
+                name="iceCreamFlavors"
                 component="div"
                 className="text-red-500"
               />
             </div>
             <div>
-              <label className="block text-gray-700 py-4">Toppings</label>
+              <label className="block text-gray-700 py-4 font-bold">
+                Toppings
+              </label>
               <div role="group">
-                <label className="mr-4">
-                  <Field
-                    type="checkbox"
-                    name="toppings"
-                    value="Sprinkles"
-                    className="mr-2"
-                  />
-                  <span>Sprinkles</span>
-                </label>
-                <label className="mr-4">
-                  <Field
-                    type="checkbox"
-                    name="toppings"
-                    value="Cherries"
-                    className="mr-2"
-                  />
-                  Cherries
-                </label>
-                <label className="mr-4">
-                  <Field
-                    type="checkbox"
-                    name="toppings"
-                    value="Chocolate Sauce"
-                    className="mr-2"
-                  />
-                  Chocolate Sauce
-                </label>
+                {toppings.map((topping) => (
+                  <label key={topping.value} className="mr-4">
+                    <Field
+                      type="checkbox"
+                      name="toppings"
+                      value={topping.value}
+                      className="mr-2"
+                    />
+                    {topping.name}
+                  </label>
+                ))}
               </div>
-              <div className="py-4">
-                <label>
-                  <Field
-                    type="checkbox"
-                    name="acceptTerms"
-                    checked={isChecked}
-                    className="mr-2"
-                    onClick={checkBoxHandler}
-                  />
-                  Accept Terms and Conditions
-                </label>
-              </div>
-              <ErrorMessage
-                name="toppings"
-                component="div"
-                className="text-red-500"
-              />
             </div>
+            <div>
+              <label>
+                <Field
+                  type="checkbox"
+                  name="confirmationCheckbox"
+                  checked={isChecked}
+                  onChange={checkBoxHandler}
+                  className="mr-2"
+                />
+                I confirm that this site is not real.
+              </label>
+            </div>
+
             <div>
               <button
                 type="submit"
-                disabled={isSubmitting}
                 className={`w-full px-4 py-2 bg-blue-500 text-white rounded-lg ${
                   isSubmitting
                     ? "cursor-not-allowed opacity-50"
@@ -130,9 +137,7 @@ export default function IceCreamOrderForm({}: Props) {
                   !isChecked
                     ? "cursor-not-allowed opacity-50"
                     : "hover:bg-blue-600"
-                }
-                  
-                `}
+                }`}
               >
                 Submit
               </button>
