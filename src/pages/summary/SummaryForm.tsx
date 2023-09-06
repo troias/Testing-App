@@ -129,6 +129,7 @@ export default function IceCreamOrderForm({}: Props) {
             <div>
               <button
                 type="submit"
+                disabled={isSubmitting || !isChecked}
                 className={`w-full px-4 py-2 bg-blue-500 text-white rounded-lg ${
                   isSubmitting
                     ? "cursor-not-allowed opacity-50"
