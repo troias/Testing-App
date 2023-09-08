@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage, FormikValues } from "formik";
 import * as Yup from "yup";
 
 type Props = {};
@@ -10,6 +10,12 @@ const toppings = [
   { name: "Chocolate Sauce", value: "Chocolate Sauce" },
 ];
 
+type Flavor = {
+  name: string;
+  value: string;
+  scoops: number;
+};
+
 export default function IceCreamOrderForm({}: Props) {
   const [isChecked, setIsChecked] = useState(false);
 
@@ -17,30 +23,45 @@ export default function IceCreamOrderForm({}: Props) {
     setIsChecked(!isChecked);
   };
 
-  const flavours = [
-    { name: "Vanilla", value: "Vanilla" },
-    { name: "Chocolate", value: "Chocolate" },
-    { name: "Strawberry", value: "Strawberry" },
+  const flavours: Flavor[] = [
+    { name: "Vanilla", value: "Vanilla", scoops: 0 },
+    { name: "Chocolate", value: "Chocolate", scoops: 0 },
+    { name: "Strawberry", value: "Strawberry", scoops: 0 },
   ];
+
+  // Initialize the iceCreamFlavors array with the correct structure
+  const initialIceCreamFlavors = flavours.map((flavor) => ({
+    ...flavor,
+    scoops: 0,
+  }));
 
   return (
     <div className="w-full  mt-10 p-4 bg-white rounded-lg shadow-md">
       <Formik
-        initialValues={{ name: "", iceCreamFlavor: [], toppings: [] }}
+        initialValues={{
+          name: "",
+          iceCreamFlavors: initialIceCreamFlavors,
+          toppings: [],
+          confirmationCheckbox: false,
+        }}
         validationSchema={Yup.object({
           name: Yup.string()
             .max(15, "Must be 15 characters or less")
             .required("Required"),
+          toppings: Yup.array().min(1, "You must choose at least 1 topping"),
           iceCreamFlavors: Yup.array()
-            .min(1, "Pick at least 1 flavor")
-            .required("Required"),
-          toppings: Yup.array()
-            .min(1, "Pick at least 1 topping")
-            .required("Required"),
-          confirmationCheckbox: Yup.boolean().oneOf(
-            [true],
-            "You must accept the terms and conditions"
-          ),
+            .of(
+              Yup.object().shape({
+                name: Yup.string().required("Flavor name is required"),
+                value: Yup.string().required("Flavor value is required"),
+                scoops: Yup.number()
+                  .min(0, "At least 0 scoops")
+                  .max(5, "At most 5 scoops")
+                  .integer("Scoops must be an integer")
+                  .required("Scoops are required"),
+              })
+            )
+            .min(1, "You must choose at least 1 flavor"),
         })}
         onSubmit={(values, { setSubmitting, resetForm }) => {
           console.log(values);
@@ -52,7 +73,7 @@ export default function IceCreamOrderForm({}: Props) {
           }, 3000);
         }}
       >
-        {({ isSubmitting }) => (
+        {({ isSubmitting, setFieldValue, values }: FormikValues) => (
           <Form className="space-y-4">
             <div>
               <label className="block text-gray-700" htmlFor="name">
@@ -76,19 +97,27 @@ export default function IceCreamOrderForm({}: Props) {
               <label className="block text-gray-700 py-2 font-bold">
                 Ice Cream Flavor
               </label>
-              <div role="group">
-                {flavours.map((flavor) => (
-                  <label key={flavor.value} className="mr-4">
-                    <Field
-                      type="checkbox"
-                      name="iceCreamFlavors"
-                      value={flavor.value}
-                      className="mr-2"
-                    />
-                    {flavor.name}
-                  </label>
-                ))}
-              </div>
+              {flavours.map((flavor) => (
+                <div key={flavor.value} className="flex items-center">
+                  <label className="mr-4">{flavor.name}</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="5"
+                    name={`iceCreamFlavors.${flavours.indexOf(flavor)}.scoops`}
+                    value={
+                      values.iceCreamFlavors[flavours.indexOf(flavor)].scoops
+                    }
+                    onChange={(e) =>
+                      setFieldValue(
+                        `iceCreamFlavors.${flavours.indexOf(flavor)}.scoops`,
+                        parseInt(e.target.value, 10) || 0
+                      )
+                    }
+                    className="mr-2 w-16 px-2 py-1 border rounded-lg focus:ring focus:ring-blue-300"
+                  />
+                </div>
+              ))}
               <ErrorMessage
                 name="iceCreamFlavors"
                 component="div"
