@@ -29,7 +29,7 @@ export default function IceCreamOrderForm({}: Props) {
   const flavours: Flavor[] = [
     { name: "Vanilla", value: "Vanilla", scoops: 0 },
     { name: "Chocolate", value: "Chocolate", scoops: 0 },
-    { name: "Strawberry", value: "Strawberry", scoops: 0 },
+    { name: "Mint Chip", value: "Mint Chip", scoops: 0 },
   ];
 
   // Initialize the iceCreamFlavors array with the correct structure
