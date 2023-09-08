@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import scoopOptions from "./scoopOptions";
+import toppingOptions from "./toppingOptions";
 
 interface Item {
   name: string;
@@ -11,12 +12,18 @@ export default function Options({ optionType }: { optionType: string }) {
 
   useEffect(() => {
     // Get options from server
-    fetch(`http://localhost:3030/${optionType}`)
-      .then((response) => response.json())
-      .then((json) => {
-        setItems(json); // Assuming the response is an array
-      });
+    try {
+      fetch(`http://localhost:3030/${optionType}`)
+        .then((response) => response.json())
+        .then((json) => {
+          setItems(json); // Assuming the response is an array
+        });
+    } catch (error) {
+      throw error;
+    }
   }, [optionType]); // Include optionType in the dependency array
+
+  const ItemComponent = optionType === "scoops" ? scoopOptions : toppingOptions;
 
   const optionItems = items.map((item: { name: string; imagePath: string }) => (
     <ItemComponent
@@ -28,11 +35,3 @@ export default function Options({ optionType }: { optionType: string }) {
 
   return <div>{optionItems}</div>;
 }
-
-const ItemComponent = ({ name, imagePath }: Item) => {
-  return (
-    <div>
-      <img src={`http://localhost:3030/${imagePath}`} alt={`${name} scoop`} />
-    </div>
-  );
-};
