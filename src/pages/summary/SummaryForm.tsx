@@ -5,9 +5,9 @@ import * as Yup from "yup";
 type Props = {};
 
 const toppings = [
-  { name: "Sprinkles", value: "Sprinkles" },
-  { name: "Cherries", value: "Cherries" },
-  { name: "Chocolate Sauce", value: "Chocolate Sauce" },
+  { name: "Sprinkles", value: "Sprinkles", cost: 1 }, // Cost of each topping
+  { name: "Cherries", value: "Cherries", cost: 0.5 },
+  { name: "Chocolate Sauce", value: "Chocolate Sauce", cost: 1.5 },
 ];
 
 type Flavor = {
@@ -18,10 +18,13 @@ type Flavor = {
 
 export default function IceCreamOrderForm({}: Props) {
   const [isChecked, setIsChecked] = useState(false);
+  const [totalScoops, setTotalScoops] = useState<number[]>([]);
 
   const checkBoxHandler = () => {
     setIsChecked(!isChecked);
   };
+
+  const scoopCost = 2; // Cost of each scoop
 
   const flavours: Flavor[] = [
     { name: "Vanilla", value: "Vanilla", scoops: 0 },
@@ -36,19 +39,21 @@ export default function IceCreamOrderForm({}: Props) {
   }));
 
   return (
-    <div className="w-full  mt-10 p-4 bg-white rounded-lg shadow-md">
+    <div className="w-full mt-10 p-4 bg-white rounded-lg shadow-md">
       <Formik
         initialValues={{
           name: "",
           iceCreamFlavors: initialIceCreamFlavors,
           toppings: [],
-          confirmationCheckbox: false,
+          scoopTotalCost: 0,
+          toppingTotalCost: 0,
+          grandTotal: 0,
         }}
         validationSchema={Yup.object({
           name: Yup.string()
             .max(15, "Must be 15 characters or less")
             .required("Required"),
-          toppings: Yup.array().min(1, "You must choose at least 1 topping"),
+          toppings: Yup.array().of(Yup.string()),
           iceCreamFlavors: Yup.array()
             .of(
               Yup.object().shape({
@@ -64,9 +69,33 @@ export default function IceCreamOrderForm({}: Props) {
             .min(1, "You must choose at least 1 flavor"),
         })}
         onSubmit={(values, { setSubmitting, resetForm }) => {
-          console.log(values);
+          // Calculate scoop total cost
+          const scoopTotalCost =
+            totalScoops.reduce((a, b) => a + b, 0) * scoopCost;
+
+          // Calculate topping total cost
+          const toppingTotalCost = values.toppings.reduce(
+            (total: number, topping: string) => {
+              const selectedTopping = toppings.find((t) => t.value === topping);
+              return total + (selectedTopping ? selectedTopping.cost : 0);
+            },
+            0
+          );
+
+          // Calculate grand total
+          const grandTotal = scoopTotalCost + toppingTotalCost;
+
+          // Update the values object with the calculated costs
+          const updatedValues = {
+            ...values,
+            scoopTotalCost,
+            toppingTotalCost,
+            grandTotal,
+          };
+
+          console.log(updatedValues);
           setTimeout(() => {
-            alert(JSON.stringify(values, null, 2));
+            alert(JSON.stringify(updatedValues, null, 2));
             resetForm();
             setSubmitting(false);
             setIsChecked(false);
@@ -95,25 +124,28 @@ export default function IceCreamOrderForm({}: Props) {
             </div>
             <div>
               <label className="block text-gray-700 py-2 font-bold">
-                Ice Cream Flavor
+                Ice Cream Flavor & Scoops
               </label>
-              {flavours.map((flavor) => (
+              {flavours.map((flavor, index) => (
                 <div key={flavor.value} className="flex items-center">
                   <label className="mr-4">{flavor.name}</label>
                   <input
                     type="number"
                     min="0"
                     max="5"
-                    name={`iceCreamFlavors.${flavours.indexOf(flavor)}.scoops`}
-                    value={
-                      values.iceCreamFlavors[flavours.indexOf(flavor)].scoops
-                    }
-                    onChange={(e) =>
+                    name={`iceCreamFlavors.${index}.scoops`}
+                    value={values.iceCreamFlavors[index].scoops}
+                    onChange={(e) => {
                       setFieldValue(
-                        `iceCreamFlavors.${flavours.indexOf(flavor)}.scoops`,
+                        `iceCreamFlavors.${index}.scoops`,
                         parseInt(e.target.value, 10) || 0
-                      )
-                    }
+                      );
+
+                      // Update the total scoops count for this flavor
+                      const newTotalScoops = [...totalScoops];
+                      newTotalScoops[index] = parseInt(e.target.value, 10) || 0;
+                      setTotalScoops(newTotalScoops);
+                    }}
                     className="mr-2 w-16 px-2 py-1 border rounded-lg focus:ring focus:ring-blue-300"
                   />
                 </div>
@@ -123,6 +155,18 @@ export default function IceCreamOrderForm({}: Props) {
                 component="div"
                 className="text-red-500"
               />
+              <div className="py-2 font-bold">
+                Scoops Total for Each Flavor:
+                {totalScoops.map((scoops, index) => (
+                  <span key={index} className="ml-2">
+                    {flavours[index].name}: {scoops}
+                  </span>
+                ))}
+              </div>
+              <div className="py-2 font-bold">
+                Scoops Cost: $
+                {totalScoops.reduce((a, b) => a + b, 0) * scoopCost}
+              </div>
             </div>
             <div>
               <label className="block text-gray-700 py-4 font-bold">
@@ -137,10 +181,22 @@ export default function IceCreamOrderForm({}: Props) {
                       value={topping.value}
                       className="mr-2"
                     />
-                    {topping.name}
+                    {topping.name} (+${topping.cost})
                   </label>
                 ))}
               </div>
+            </div>
+            <div className="py-2 font-bold">
+              Toppings Cost: $
+              {values.toppings.reduce((total: number, topping: string) => {
+                const selectedTopping = toppings.find(
+                  (t) => t.value === topping
+                );
+                return total + (selectedTopping ? selectedTopping.cost : 0);
+              }, 0)}
+            </div>
+            <div className="py-2 font-bold">
+              Total Cost: ${values.grandTotal}
             </div>
             <div>
               <label>
