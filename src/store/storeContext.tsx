@@ -29,7 +29,7 @@ interface Order {
   toppings: Topping[];
   customer: Customer;
   status: "pending" | "completed";
-  calculateTotalCost: () => number;
+
   grandTotal: number;
 }
 
@@ -42,9 +42,9 @@ interface IceCreamContext {
 
 export const iceCreamContext: IceCreamContext = {
   flavors: [
-    { name: "Vanilla", value: "Vanilla", scoops: 0, price: 0 },
-    { name: "Chocolate", value: "Chocolate", scoops: 0, price: 0 },
-    { name: "Mint Chip", value: "Mint Chip", scoops: 0, price: 0 },
+    { name: "Vanilla", value: "Vanilla", scoops: 0, price: 2 },
+    { name: "Chocolate", value: "Chocolate", scoops: 0, price: 2 },
+    { name: "Mint Chip", value: "Mint Chip", scoops: 0, price: 2 },
   ],
   toppings: [
     { name: "Sprinkles", value: "Sprinkles", price: 1 },
@@ -73,7 +73,7 @@ export const iceCreamContext: IceCreamContext = {
       zip: "",
     },
     status: "pending",
-    calculateTotalCost: () => 0,
+
     grandTotal: 0,
   },
 };

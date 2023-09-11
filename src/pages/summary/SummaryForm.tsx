@@ -160,8 +160,29 @@ const IceCreamOrderForm = () => {
                     }}
                     className="mr-2 w-16 px-2 py-1 border rounded-lg focus:ring focus:ring-blue-300"
                   />
+                  Ice Cream Flavour + Scoops Total Cost: $
+                  {`$${values.iceCreamFlavors[index].scoops * flavor.price}`}
+                  {
+                    // Icecream flavour + scoops total cost
+                  }
                 </div>
               ))}
+              <label className="block text-gray-700 py-4 font-bold ">
+                Total Cost of Scoops: $
+                {values.iceCreamFlavors.reduce(
+                  (total: any, flavor: { scoops: any; price: any }) =>
+                    total + flavor.scoops * flavor.price,
+                  0
+                )}
+              </label>
+              <label className="block text-gray-700 py-4 font-bold ">
+                Total Scoops:{" "}
+                {values.iceCreamFlavors.reduce(
+                  (total: any, flavor: { scoops: any }) =>
+                    total + flavor.scoops,
+                  0
+                )}
+              </label>
               <ErrorMessage
                 name="iceCreamFlavors"
                 component="div"
@@ -175,16 +196,33 @@ const IceCreamOrderForm = () => {
               </label>
               <div role="group">
                 {toppings.map((topping) => (
-                  <label key={topping.value} className="mr-4">
-                    <Field
-                      type="checkbox"
-                      name="toppings"
-                      value={topping.value}
-                      className="mr-2"
-                    />
-                    {topping.name} (+${topping.price})
-                  </label>
+                  <div>
+                    <label key={topping.value} className="mr-4">
+                      <Field
+                        type="checkbox"
+                        name="toppings"
+                        value={topping.value}
+                        className="mr-2"
+                      />
+                      {topping.name} (+${topping.price})
+                    </label>
+                  </div>
                 ))}
+                <label className="block text-gray-700 py-4 font-bold">
+                  Toppings total price: ${" "}
+                  {values.toppings.reduce(
+                    (total: number, selectedTopping: string) => {
+                      const selectedToppingInfo = toppings.find(
+                        (topping) => topping.value === selectedTopping
+                      );
+                      return (
+                        total +
+                        (selectedToppingInfo ? selectedToppingInfo.price : 0)
+                      );
+                    },
+                    0
+                  )}
+                </label>
               </div>
             </div>
             <div className="py-2 font-bold">
