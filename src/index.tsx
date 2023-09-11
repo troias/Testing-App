@@ -8,6 +8,7 @@ import Layout from "./components/layout/layout";
 import MobileNavigation from "./components/navigation/mobileNavigation";
 import OrderSummary from "./pages/summary/OrderSummary";
 import SummaryForm from "./pages/summary/SummaryForm";
+import StoreProvider from "../src/store/storeContext";
 
 const routerInner = createBrowserRouter([
   { path: "/", element: <App /> },
@@ -25,10 +26,12 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <MobileNavigation />
-    <Layout>
-      <RouterProvider router={routerInner} />
-    </Layout>
+    <StoreProvider>
+      <MobileNavigation />
+      <Layout>
+        <RouterProvider router={routerInner} />
+      </Layout>
+    </StoreProvider>
   </React.StrictMode>
 );
 

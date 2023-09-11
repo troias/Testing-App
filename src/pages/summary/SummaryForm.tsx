@@ -1,49 +1,58 @@
-import { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Formik, Form, Field, ErrorMessage, FormikValues } from "formik";
 import * as Yup from "yup";
+import { StoreContext } from "../../store/storeContext";
 
-type Props = {};
-
-const toppings = [
-  { name: "Sprinkles", value: "Sprinkles", cost: 1 }, // Cost of each topping
-  { name: "Cherries", value: "Cherries", cost: 0.5 },
-  { name: "Chocolate Sauce", value: "Chocolate Sauce", cost: 1.5 },
-];
-
-type Flavor = {
-  name: string;
-  value: string;
-  scoops: number;
-};
-
-export default function IceCreamOrderForm({}: Props) {
+const IceCreamOrderForm = () => {
   const [isChecked, setIsChecked] = useState(false);
-  const [totalScoops, setTotalScoops] = useState<number[]>([]);
+  const ctx = useContext(StoreContext);
+
+  // Check if ctx exists before destructuring its properties
+  if (!ctx) {
+    // Handle the case where ctx is undefined, such as providing default values or rendering an error message
+    return (
+      <div>
+        Error: Unable to access store context.
+        {/* You can provide additional error handling or fallback UI here */}
+      </div>
+    );
+  }
+
+  const { flavors, toppings, customer, order } = ctx;
 
   const checkBoxHandler = () => {
     setIsChecked(!isChecked);
   };
 
-  const scoopCost = 2; // Cost of each scoop
+  const calculateTotalCost = () => {
+    // Calculate the total cost based on selected flavors and toppings
+    const flavorCost = flavors.reduce(
+      (total, flavor) => total + flavor.scoops * flavor.price, // Assuming price is per scoop
+      0
+    );
 
-  const flavours: Flavor[] = [
-    { name: "Vanilla", value: "Vanilla", scoops: 0 },
-    { name: "Chocolate", value: "Chocolate", scoops: 0 },
-    { name: "Mint Chip", value: "Mint Chip", scoops: 0 },
-  ];
+    // Add a null check for order
+    const toppingCost =
+      order?.toppings?.reduce((total, topping) => {
+        // Explicitly type topping as string
+        const selectedTopping = toppings.find(
+          (t) => t.value === (topping as unknown as string)
+        );
+        return total + (selectedTopping ? selectedTopping.price : 0);
+      }, 0) || 0; // Use 0 as the default value if order or toppings are undefined
 
-  // Initialize the iceCreamFlavors array with the correct structure
-  const initialIceCreamFlavors = flavours.map((flavor) => ({
-    ...flavor,
-    scoops: 0,
-  }));
+    return flavorCost + toppingCost;
+  };
 
   return (
     <div className="w-full mt-10 p-4 bg-white rounded-lg shadow-md">
       <Formik
         initialValues={{
           name: "",
-          iceCreamFlavors: initialIceCreamFlavors,
+          iceCreamFlavors: flavors.map((flavor) => ({
+            ...flavor,
+            scoops: 0,
+          })),
           toppings: [],
           scoopTotalCost: 0,
           toppingTotalCost: 0,
@@ -70,17 +79,16 @@ export default function IceCreamOrderForm({}: Props) {
         })}
         onSubmit={(values, { setSubmitting, resetForm }) => {
           // Calculate scoop total cost
-          const scoopTotalCost =
-            totalScoops.reduce((a, b) => a + b, 0) * scoopCost;
-
-          // Calculate topping total cost
-          const toppingTotalCost = values.toppings.reduce(
-            (total: number, topping: string) => {
-              const selectedTopping = toppings.find((t) => t.value === topping);
-              return total + (selectedTopping ? selectedTopping.cost : 0);
-            },
+          const scoopTotalCost = values.iceCreamFlavors.reduce(
+            (total, flavor) => total + flavor.scoops * flavor.price,
             0
           );
+
+          // Calculate topping total cost
+          const toppingTotalCost = values.toppings.reduce((total, topping) => {
+            const selectedTopping = toppings.find((t) => t.value === topping);
+            return total + (selectedTopping ? selectedTopping.price : 0);
+          }, 0);
 
           // Calculate grand total
           const grandTotal = scoopTotalCost + toppingTotalCost;
@@ -126,10 +134,16 @@ export default function IceCreamOrderForm({}: Props) {
               <label className="block text-gray-700 py-2 font-bold">
                 Ice Cream Flavor & Scoops
               </label>
-              {flavours.map((flavor, index) => (
+              {flavors.map((flavor, index) => (
                 <div key={flavor.value} className="flex items-center">
-                  <label className="mr-4">{flavor.name}</label>
+                  <label
+                    className="mr-4"
+                    htmlFor={`iceCreamFlavors.${index}.scoops`}
+                  >
+                    {flavor.name}
+                  </label>
                   <input
+                    id={`iceCreamFlavors.${index}.scoops`}
                     type="number"
                     min="0"
                     max="5"
@@ -142,9 +156,7 @@ export default function IceCreamOrderForm({}: Props) {
                       );
 
                       // Update the total scoops count for this flavor
-                      const newTotalScoops = [...totalScoops];
-                      newTotalScoops[index] = parseInt(e.target.value, 10) || 0;
-                      setTotalScoops(newTotalScoops);
+                      // You may need to implement this part based on your specific requirements
                     }}
                     className="mr-2 w-16 px-2 py-1 border rounded-lg focus:ring focus:ring-blue-300"
                   />
@@ -155,18 +167,7 @@ export default function IceCreamOrderForm({}: Props) {
                 component="div"
                 className="text-red-500"
               />
-              <div className="py-2 font-bold">
-                Scoops Total for Each Flavor:
-                {totalScoops.map((scoops, index) => (
-                  <span key={index} className="ml-2">
-                    {flavours[index].name}: {scoops}
-                  </span>
-                ))}
-              </div>
-              <div className="py-2 font-bold">
-                Scoops Cost: $
-                {totalScoops.reduce((a, b) => a + b, 0) * scoopCost}
-              </div>
+              {/* Add code here to display scoops total */}
             </div>
             <div>
               <label className="block text-gray-700 py-4 font-bold">
@@ -181,19 +182,13 @@ export default function IceCreamOrderForm({}: Props) {
                       value={topping.value}
                       className="mr-2"
                     />
-                    {topping.name} (+${topping.cost})
+                    {topping.name} (+${topping.price})
                   </label>
                 ))}
               </div>
             </div>
             <div className="py-2 font-bold">
-              Toppings Cost: $
-              {values.toppings.reduce((total: number, topping: string) => {
-                const selectedTopping = toppings.find(
-                  (t) => t.value === topping
-                );
-                return total + (selectedTopping ? selectedTopping.cost : 0);
-              }, 0)}
+              {/* Add code here to display toppings cost */}
             </div>
             <div className="py-2 font-bold">
               Total Cost: ${values.grandTotal}
@@ -233,4 +228,6 @@ export default function IceCreamOrderForm({}: Props) {
       </Formik>
     </div>
   );
-}
+};
+
+export default IceCreamOrderForm;
