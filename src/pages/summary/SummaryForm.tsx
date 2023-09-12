@@ -196,8 +196,10 @@ const IceCreamOrderForm = () => {
               </label>
               <div role="group">
                 {toppings.map((topping) => (
-                  <div>
-                    <label key={topping.value} className="mr-4">
+                  <div key={topping.value}>
+                    {" "}
+                    {/* Add key here */}
+                    <label className="mr-4">
                       <Field
                         type="checkbox"
                         name="toppings"
