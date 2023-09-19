@@ -25,6 +25,18 @@ export default function OrderSummary({}: Props) {
     }
   };
 
+  // if order is not loaded in page loading spinnder will be shown
+
+  if (!order) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
+          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-md w-full space-y-8">
       <div>
@@ -37,7 +49,10 @@ export default function OrderSummary({}: Props) {
             <span>{order?.customer.name}</span>
           </h3>
         </div>
-        <h3 className="mt-6 flex text-2xl font-medium text-gray-800 gap-3">
+        <h3
+          className="mt-6 flex text-2xl font-medium text-gray-800 gap-3"
+          data-testid="scoops-summary"
+        >
           <span>Scoops: </span>
           <span>
             {order?.iceCreamFlavors.reduce(
@@ -60,14 +75,18 @@ export default function OrderSummary({}: Props) {
         </div>
         <div className="flex pt-4">
           <div>
-            <label className="mb-4 flex gap-4 w-max">
+            <label className="mb-4 flex gap-4 w-max" data-testid="confirmation">
               <input
                 type="checkbox"
                 checked={isChecked}
                 onChange={handleCheckboxChange}
                 className="mr-2"
+                role="checkbox"
+                id="confirm"
               />
-              <span className="text-lg">Check this box</span>
+              <span className="text-lg">
+                I confirm that this site is not real
+              </span>
             </label>
           </div>
         </div>
@@ -93,7 +112,7 @@ export default function OrderSummary({}: Props) {
                 : "bg-gray-400 cursor-not-allowed"
             } text-white`}
           >
-            Click me
+            Confirm Order
           </button>
           {showAlert && <div role="alert">Button clicked!</div>}
         </div>

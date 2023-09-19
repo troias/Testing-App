@@ -28,6 +28,8 @@ const IceCreamOrderForm = () => {
     setIsChecked(!isChecked);
   };
 
+  console.log("isChecked", isChecked);
+
   return (
     <div className="w-full mt-10 p-4 bg-white rounded-lg shadow-md">
       <Formik
@@ -113,17 +115,35 @@ const IceCreamOrderForm = () => {
             toppingTotalCost,
             grandTotal,
             status: "review",
+            orderNumber: Math.floor(Math.random() * 1000000),
           };
 
           console.log("updatedValues", updatedValues);
-          setTimeout(() => {
-            // alert(JSON.stringify(updatedValues, null, 2));
-            updateOrder(updatedValues);
-            resetForm();
-            setSubmitting(false);
-            setIsChecked(false);
-          }, 3000);
+
+          // check to see if at least 1 scoop is selected
+          const hasZeroScoops = values.iceCreamFlavors.some(
+            (flavor) => flavor.scoops === 1
+          );
+
+          // if scoops are 0, alert the user and focus the first input
+
+          if (!hasZeroScoops) {
+            alert("You must choose at least 1 scoop for each flavor.");
+            return;
+          }
+
+          // Update the order in the store
+          updateOrder(updatedValues);
+
+          // Reset the form
+
+          resetForm();
+
+          // Navigate to the order summary page
+
           navigate("/order-summary");
+
+          // check if scoops are greater than 0
         }}
       >
         {({ isSubmitting, setFieldValue, values }: FormikValues) => (
@@ -176,13 +196,12 @@ const IceCreamOrderForm = () => {
                     }}
                     className="mr-2 w-16 px-2 py-1 border rounded-lg focus:ring focus:ring-blue-300"
                   />
-                  <div className="mr-4">
-                    Ice Cream Flavour + Scoops Total Cost: $
-                    {`${values.iceCreamFlavors[index].scoops * flavor.price}`}
-                    {
-                      // Icecream flavour + scoops total cost
-                    }
-                  </div>
+                  {
+                    <div className="mr-4">
+                      Ice Cream Flavour + Scoops Total Cost: $
+                      {values.iceCreamFlavors[index].scoops * flavor.price}
+                    </div>
+                  }
                 </div>
               ))}
               <label className="block text-gray-700 py-4 font-bold ">
@@ -285,18 +304,18 @@ const IceCreamOrderForm = () => {
             <div>
               <button
                 type="submit"
-                disabled={isSubmitting || !isChecked}
+                disabled={!isChecked}
                 className={`w-full px-4 py-2 bg-blue-500 text-white rounded-lg ${
-                  isSubmitting
-                    ? "cursor-not-allowed opacity-50"
-                    : "hover:bg-blue-600"
-                } ${
                   !isChecked
                     ? "cursor-not-allowed opacity-50"
                     : "hover:bg-blue-600"
                 }`}
               >
-                Submit
+                <>
+                  {" "}
+                  {console.log("isSubmitting", isSubmitting)}
+                  Order Sundae
+                </>
               </button>
             </div>
           </Form>

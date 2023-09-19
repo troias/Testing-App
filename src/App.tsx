@@ -1,11 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const HomePage = () => {
+const App = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
       <div className="text-center">
-        <h1 className="text-3xl font-bold mb-4">Welcome to Ice Cream Shop!</h1>
+        <h1 className="text-3xl font-bold mb-4">
+          Welcome to GreyMon Ice Cream Shop!
+        </h1>
         <p className="text-gray-700 mb-8">
           Enjoy our delicious ice cream flavors and toppings.
         </p>
@@ -21,4 +23,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default App;

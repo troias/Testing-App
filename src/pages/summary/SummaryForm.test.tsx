@@ -49,7 +49,7 @@ test("Button is disabled when checkbox is unchecked", async () => {
       <SummaryForm />
     </MemoryRouter>
   );
-  const button = screen.getByRole("button", { name: /Submit/i });
+  const button = screen.getByRole("button", { name: /Order Sundae/i });
   const checkbox = screen.getByRole("checkbox", {
     name: /I confirm that this site is not real/i,
   });

@@ -5,7 +5,6 @@ import IceCreamOrderForm from "../pages/summary/SummaryForm"; // Import your com
 import { MemoryRouter } from "react-router-dom"; // Import from react-router-dom
 
 import userEvent from "@testing-library/user-event";
-import { useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
 
 test("it displays 'Vanilla' label", () => {
   render(

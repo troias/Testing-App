@@ -34,6 +34,7 @@ export interface Order {
   scoopTotalCost: number;
   toppingTotalCost: number;
   grandTotal: number;
+  orderNumber: number;
 }
 
 interface IceCreamContext {
@@ -80,6 +81,7 @@ const initialContext: IceCreamContext = {
     toppingTotalCost: 0,
     status: "inProgress",
     grandTotal: 0,
+    orderNumber: 0,
   },
   updateOrder: () => {
     throw new Error("updateOrder function not yet initialized");
