@@ -176,11 +176,13 @@ const IceCreamOrderForm = () => {
                     }}
                     className="mr-2 w-16 px-2 py-1 border rounded-lg focus:ring focus:ring-blue-300"
                   />
-                  Ice Cream Flavour + Scoops Total Cost: $
-                  {`$${values.iceCreamFlavors[index].scoops * flavor.price}`}
-                  {
-                    // Icecream flavour + scoops total cost
-                  }
+                  <div className="mr-4">
+                    Ice Cream Flavour + Scoops Total Cost: $
+                    {`${values.iceCreamFlavors[index].scoops * flavor.price}`}
+                    {
+                      // Icecream flavour + scoops total cost
+                    }
+                  </div>
                 </div>
               ))}
               <label className="block text-gray-700 py-4 font-bold ">
