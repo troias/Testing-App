@@ -1,4 +1,4 @@
-import { ReactNode, createContext } from "react";
+import React, { ReactNode, createContext, useState } from "react";
 import PropTypes from "prop-types";
 
 interface Flavor {
@@ -6,12 +6,14 @@ interface Flavor {
   value: string;
   scoops: number;
   price: number;
+  id: string;
 }
 
-interface Topping {
+export interface Topping {
   name: string;
   value: string;
   price: number;
+  id: string;
 }
 
 interface Customer {
@@ -24,12 +26,13 @@ interface Customer {
   zip: string;
 }
 
-interface Order {
+export interface Order {
+  customer: Customer;
   iceCreamFlavors: Flavor[];
   toppings: Topping[];
-  customer: Customer;
-  status: "pending" | "completed";
-
+  status: "inProgress" | "review" | "completed";
+  scoopTotalCost: number;
+  toppingTotalCost: number;
   grandTotal: number;
 }
 
@@ -37,19 +40,20 @@ interface IceCreamContext {
   flavors: Flavor[];
   toppings: Topping[];
   customer?: Customer;
-  order?: Order;
+  order: Order | undefined; // Ensure order is defined in the context
+  updateOrder: (updatedOrder: Order) => void;
 }
 
-export const iceCreamContext: IceCreamContext = {
+const initialContext: IceCreamContext = {
   flavors: [
-    { name: "Vanilla", value: "Vanilla", scoops: 0, price: 2 },
-    { name: "Chocolate", value: "Chocolate", scoops: 0, price: 2 },
-    { name: "Mint Chip", value: "Mint Chip", scoops: 0, price: 2 },
+    { name: "Vanilla", value: "Vanilla", scoops: 0, price: 2, id: "1" },
+    { name: "Chocolate", value: "Chocolate", scoops: 0, price: 2, id: "2" },
+    { name: "Mint Chip", value: "Mint Chip", scoops: 0, price: 2, id: "3" },
   ],
   toppings: [
-    { name: "Sprinkles", value: "Sprinkles", price: 1 },
-    { name: "Cherries", value: "Cherries", price: 0.5 },
-    { name: "Chocolate Sauce", value: "Chocolate Sauce", price: 1.5 },
+    { name: "Sprinkles", value: "Sprinkles", price: 1, id: "1" },
+    { name: "Cherries", value: "Cherries", price: 0.5, id: "2" },
+    { name: "Chocolate Sauce", value: "Chocolate Sauce", price: 1.5, id: "3" },
   ],
   customer: {
     name: "",
@@ -61,8 +65,6 @@ export const iceCreamContext: IceCreamContext = {
     zip: "",
   },
   order: {
-    iceCreamFlavors: [],
-    toppings: [],
     customer: {
       name: "",
       email: "",
@@ -72,23 +74,35 @@ export const iceCreamContext: IceCreamContext = {
       state: "",
       zip: "",
     },
-    status: "pending",
-
+    iceCreamFlavors: [],
+    toppings: [],
+    scoopTotalCost: 0,
+    toppingTotalCost: 0,
+    status: "inProgress",
     grandTotal: 0,
+  },
+  updateOrder: () => {
+    throw new Error("updateOrder function not yet initialized");
   },
 };
 
-export const StoreContext = createContext<IceCreamContext | undefined>(
-  undefined
-);
+const StoreContext = createContext<IceCreamContext>(initialContext);
 
 type StoreProviderProps = {
-  children: ReactNode;
+  children: React.ReactNode;
 };
 
 const StoreProvider = ({ children }: StoreProviderProps) => {
+  const [order, setOrder] = useState<Order | undefined>(initialContext.order);
+
+  const contextValue: IceCreamContext = {
+    ...initialContext,
+    order,
+    updateOrder: (updatedOrder: Order) => setOrder(updatedOrder),
+  };
+
   return (
-    <StoreContext.Provider value={iceCreamContext}>
+    <StoreContext.Provider value={contextValue}>
       {children}
     </StoreContext.Provider>
   );
@@ -98,4 +112,4 @@ StoreProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-export default StoreProvider;
+export { StoreProvider, StoreContext };

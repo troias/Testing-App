@@ -2,10 +2,14 @@ import React, { useContext, useState } from "react";
 import { Formik, Form, Field, ErrorMessage, FormikValues } from "formik";
 import * as Yup from "yup";
 import { StoreContext } from "../../store/storeContext";
+import { useNavigate } from "react-router-dom";
+import type { Order } from "../../store/storeContext";
+import type { Topping } from "../../store/storeContext";
 
 const IceCreamOrderForm = () => {
   const [isChecked, setIsChecked] = useState(false);
   const ctx = useContext(StoreContext);
+  const navigate = useNavigate();
 
   // Check if ctx exists before destructuring its properties
   if (!ctx) {
@@ -18,30 +22,10 @@ const IceCreamOrderForm = () => {
     );
   }
 
-  const { flavors, toppings, customer, order } = ctx;
+  const { flavors, toppings, updateOrder } = ctx;
 
   const checkBoxHandler = () => {
     setIsChecked(!isChecked);
-  };
-
-  const calculateTotalCost = () => {
-    // Calculate the total cost based on selected flavors and toppings
-    const flavorCost = flavors.reduce(
-      (total, flavor) => total + flavor.scoops * flavor.price, // Assuming price is per scoop
-      0
-    );
-
-    // Add a null check for order
-    const toppingCost =
-      order?.toppings?.reduce((total, topping) => {
-        // Explicitly type topping as string
-        const selectedTopping = toppings.find(
-          (t) => t.value === (topping as unknown as string)
-        );
-        return total + (selectedTopping ? selectedTopping.price : 0);
-      }, 0) || 0; // Use 0 as the default value if order or toppings are undefined
-
-    return flavorCost + toppingCost;
   };
 
   return (
@@ -93,21 +77,53 @@ const IceCreamOrderForm = () => {
           // Calculate grand total
           const grandTotal = scoopTotalCost + toppingTotalCost;
 
-          // Update the values object with the calculated costs
-          const updatedValues = {
-            ...values,
+          // Map selected toppings to match the Topping interface
+          const mappedToppings: (Topping | null)[] = values.toppings.map(
+            (selectedTopping, index) => {
+              const selectedToppingInfo = toppings.find(
+                (topping) => topping.value === selectedTopping
+              );
+              return selectedToppingInfo
+                ? {
+                    name: selectedToppingInfo.name,
+                    value: selectedToppingInfo.value,
+                    price: selectedToppingInfo.price,
+                    id: index.toString(), // Assign a unique id for each topping
+                  }
+                : null;
+            }
+          );
+
+          // Update the values object with the mapped toppings
+          const updatedValues: Order = {
+            customer: {
+              name: values.name,
+              email: "",
+              phone: "",
+              address: "",
+              city: "",
+              state: "",
+              zip: "",
+            },
+            iceCreamFlavors: values.iceCreamFlavors,
+            toppings: mappedToppings.filter(
+              (topping) => topping !== null
+            ) as Topping[],
             scoopTotalCost,
             toppingTotalCost,
             grandTotal,
+            status: "review",
           };
 
-          console.log(updatedValues);
+          console.log("updatedValues", updatedValues);
           setTimeout(() => {
-            alert(JSON.stringify(updatedValues, null, 2));
+            // alert(JSON.stringify(updatedValues, null, 2));
+            updateOrder(updatedValues);
             resetForm();
             setSubmitting(false);
             setIsChecked(false);
           }, 3000);
+          navigate("/order-summary");
         }}
       >
         {({ isSubmitting, setFieldValue, values }: FormikValues) => (
@@ -168,7 +184,7 @@ const IceCreamOrderForm = () => {
                 </div>
               ))}
               <label className="block text-gray-700 py-4 font-bold ">
-                Total Cost of Scoops: $
+                Total Cost of Scoops: ${" "}
                 {values.iceCreamFlavors.reduce(
                   (total: any, flavor: { scoops: any; price: any }) =>
                     total + flavor.scoops * flavor.price,
@@ -201,6 +217,7 @@ const IceCreamOrderForm = () => {
                     {/* Add key here */}
                     <label className="mr-4">
                       <Field
+                        id={`toppings.${topping.value}`}
                         type="checkbox"
                         name="toppings"
                         value={topping.value}
@@ -231,7 +248,24 @@ const IceCreamOrderForm = () => {
               {/* Add code here to display toppings cost */}
             </div>
             <div className="py-2 font-bold">
-              Total Cost: ${values.grandTotal}
+              Total Cost: $
+              {values.iceCreamFlavors.reduce(
+                (total: any, flavor: { scoops: any; price: any }) =>
+                  total + flavor.scoops * flavor.price,
+                0
+              ) +
+                values.toppings.reduce(
+                  (total: number, selectedTopping: string) => {
+                    const selectedToppingInfo = toppings.find(
+                      (topping) => topping.value === selectedTopping
+                    );
+                    return (
+                      total +
+                      (selectedToppingInfo ? selectedToppingInfo.price : 0)
+                    );
+                  },
+                  0
+                )}
             </div>
             <div>
               <label>
